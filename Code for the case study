@@ -1,0 +1,29 @@
+```sql
+WITH quarterly_performance AS (
+    SELECT
+        f.airline_id,
+        d.year,
+        d.month,
+        d.quarter,
+        SUM(f.revenue) AS monthly_revenue
+    FROM fact_sales f
+    JOIN dim_date d ON f.date_id = d.date_id
+    JOIN dim_airline a ON f.airline_id = a.airline_id
+    WHERE a.airline_name = 'Saudia'
+    GROUP BY f.airline_id, d.year, d.month, d.quarter
+),
+ranked_performance AS (
+    SELECT
+        *,
+        RANK() OVER (PARTITION BY year ORDER BY monthly_revenue ASC) AS performance_rank,
+        CASE
+            WHEN month IN (6, 7, 8) THEN 'Off-Season'
+            ELSE 'Peak-Season'
+        END AS season_flag
+    FROM quarterly_performance
+)
+SELECT *
+FROM ranked_performance
+WHERE season_flag = 'Off-Season'
+ORDER BY year, performance_rank;
+```
