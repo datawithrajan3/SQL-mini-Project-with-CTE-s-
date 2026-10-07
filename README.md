@@ -1,6 +1,4 @@
 
-
-
 **Question:** Can you provide an example of how you used analytics tools (e.g. Excel, Tableau, Power BI, SQL) to identify an insight that influenced a business decision?
 
 ## Context
