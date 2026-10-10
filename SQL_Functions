@@ -1,0 +1,36 @@
+
+----Check if the Fucntion is stored, So drop method is used to identity to avoid duplicate fucntions----
+----This Function genearates, the number of jobs posted in each location monthly in the year 2023-----
+
+drop function if exists job_location_count_of_jobs_monthly(varchar, int);
+
+create or replace function job_location_count_of_jobs_monthly(
+    p_loc   varchar,
+    p_month int
+)
+returns table (
+    out_company_id   int,
+    out_company_name varchar,
+    out_location     varchar,
+    out_job_count    int
+)
+language plpgsql
+as
+$$
+begin
+    return query
+    select
+        jpf.company_id::int,
+        cd."name"::varchar,
+        jpf.job_location::varchar,
+        count(*)::int
+    from job_postings_fact jpf
+    left join company_dim cd on cd.company_id = jpf.company_id
+    where jpf.job_location = p_loc
+      and extract(month from jpf.job_posted_date) = p_month
+    group by jpf.company_id, cd."name", jpf.job_location
+    order by count(*) desc;
+end;
+$$;
+
+select Job_location_count_of_jobs_monthly('India', 3)
